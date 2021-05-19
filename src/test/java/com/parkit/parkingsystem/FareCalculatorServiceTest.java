@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Date;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class FareCalculatorServiceTest {
 
@@ -29,39 +30,74 @@ public class FareCalculatorServiceTest {
     }
 
     @Test
-    public void calculateFareCar(){
-        Date inTime = new Date();
-        inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
-        Date outTime = new Date();
-        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+    public void calculateFareCarWithLessThan30MinutesPark() {
+        LocalDateTime inTime = LocalDateTime.now();
+        LocalDateTime outTime = inTime.plusMinutes(30);
+
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+        fareCalculatorService.calculateFare(ticket);
+
+        System.out.println(ticket.getInTime());
+        System.out.println(ticket.getOutTime());
+
+        assertEquals(0, ticket.getPrice());
+    }
+
+    @Test
+    public void calculateFareCar() {
+        LocalDateTime inTime = LocalDateTime.now();
+        LocalDateTime outTime = inTime.plusMinutes(150);
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);
-        assertEquals(ticket.getPrice(), Fare.CAR_RATE_PER_HOUR);
+
+        Duration duration = Duration.between(ticket.getInTime(), ticket.getOutTime());
+        long minutesToPay = 0;
+
+        if(duration.toMinutes()>30){
+            minutesToPay = duration.minusMinutes(30).toMinutes();
+        }
+
+        double calculFare = (minutesToPay*(Fare.CAR_RATE_PER_HOUR/60));
+
+        assertEquals(calculFare, ticket.getPrice());
+
     }
 
     @Test
-    public void calculateFareBike(){
-        Date inTime = new Date();
-        inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
-        Date outTime = new Date();
-        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE,false);
+    public void calculateFareBike() {
+        LocalDateTime inTime = LocalDateTime.now();
+        LocalDateTime outTime = inTime.plusMinutes(15);
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE, false);
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);
-        assertEquals(ticket.getPrice(), Fare.BIKE_RATE_PER_HOUR);
+
+        Duration duration = Duration.between(ticket.getInTime(), ticket.getOutTime());
+        long minutesToPay = 0;
+
+        if(duration.toMinutes()>30){
+             minutesToPay = duration.minusMinutes(30).toMinutes();
+        }
+
+        double calculFare = (minutesToPay*(Fare.BIKE_RATE_PER_HOUR/60));
+
+        assertEquals(calculFare,ticket.getPrice());
     }
 
     @Test
-    public void calculateFareUnkownType(){
-        Date inTime = new Date();
-        inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
-        Date outTime = new Date();
-        ParkingSpot parkingSpot = new ParkingSpot(1, null,false);
+    public void calculateFareUnkownType() {
+        LocalDateTime inTime = LocalDateTime.now();
+        LocalDateTime outTime = inTime.plusMinutes(75);
+        ParkingSpot parkingSpot = new ParkingSpot(1, null, false);
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
@@ -70,11 +106,11 @@ public class FareCalculatorServiceTest {
     }
 
     @Test
-    public void calculateFareBikeWithFutureInTime(){
-        Date inTime = new Date();
-        inTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
-        Date outTime = new Date();
-        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE,false);
+    public void calculateFareBikeWithFutureInTime() {
+        LocalDateTime inTime = LocalDateTime.now();
+        LocalDateTime outTime = inTime.minusMinutes(10);
+
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE, false);
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
@@ -83,45 +119,76 @@ public class FareCalculatorServiceTest {
     }
 
     @Test
-    public void calculateFareBikeWithLessThanOneHourParkingTime(){
-        Date inTime = new Date();
-        inTime.setTime( System.currentTimeMillis() - (  45 * 60 * 1000) );//45 minutes parking time should give 3/4th parking fare
-        Date outTime = new Date();
-        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE,false);
+    public void calculateFareBikeWithLessThanOneHourParkingTime() {
+        LocalDateTime inTime = LocalDateTime.now();
+        LocalDateTime outTime = inTime.plusMinutes(45);
+
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE, false);
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);
-        assertEquals((0.75 * Fare.BIKE_RATE_PER_HOUR), ticket.getPrice() );
+
+        Duration duration = Duration.between(ticket.getInTime(), ticket.getOutTime());
+
+        long minutesToPay = 0;
+
+        if(duration.toMinutes()>30){
+            minutesToPay = duration.minusMinutes(30).toMinutes();
+        }
+
+        double calculFare = (minutesToPay*(Fare.BIKE_RATE_PER_HOUR/60));
+
+        assertEquals(calculFare, ticket.getPrice());
     }
 
     @Test
-    public void calculateFareCarWithLessThanOneHourParkingTime(){
-        Date inTime = new Date();
-        inTime.setTime( System.currentTimeMillis() - (  45 * 60 * 1000) );//45 minutes parking time should give 3/4th parking fare
-        Date outTime = new Date();
-        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+    public void calculateFareCarWithLessThanOneHourParkingTime() {
+        LocalDateTime inTime = LocalDateTime.now();
+        LocalDateTime outTime = inTime.plusMinutes(45);
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);
-        assertEquals( (0.75 * Fare.CAR_RATE_PER_HOUR) , ticket.getPrice());
+
+        Duration duration = Duration.between(ticket.getInTime(), ticket.getOutTime());
+        long minutesToPay = 0;
+
+        if(duration.toMinutes()>30){
+            minutesToPay = duration.minusMinutes(30).toMinutes();
+        }
+
+        double calculFare = (minutesToPay*(Fare.CAR_RATE_PER_HOUR/60));
+
+        assertEquals(calculFare, ticket.getPrice());
     }
 
     @Test
-    public void calculateFareCarWithMoreThanADayParkingTime(){
-        Date inTime = new Date();
-        inTime.setTime( System.currentTimeMillis() - (  24 * 60 * 60 * 1000) );//24 hours parking time should give 24 * parking fare per hour
-        Date outTime = new Date();
-        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+    public void calculateFareCarWithMoreThanADayParkingTime() {
+        LocalDateTime inTime = LocalDateTime.now();
+        LocalDateTime outTime = inTime.plusDays(1);
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);
-        assertEquals( (24 * Fare.CAR_RATE_PER_HOUR) , ticket.getPrice());
+
+        Duration duration = Duration.between(ticket.getInTime(), ticket.getOutTime());
+        long minutesToPay = 0;
+
+        if(duration.toMinutes()>30){
+            minutesToPay = duration.minusMinutes(30).toMinutes();
+        }
+
+        double calculFare = (minutesToPay*(Fare.CAR_RATE_PER_HOUR/60));
+
+        assertEquals(calculFare, ticket.getPrice());
     }
+
+
 
 }

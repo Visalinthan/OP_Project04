@@ -14,6 +14,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalField;
 import java.util.Date;
 
 import static org.mockito.Mockito.*;
@@ -37,7 +40,13 @@ public class ParkingServiceTest {
 
             ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
             Ticket ticket = new Ticket();
-            ticket.setInTime(new Date(System.currentTimeMillis() - (60*60*1000)));
+            Date d = new Date(System.currentTimeMillis());
+            LocalDateTime now = LocalDateTime.now();
+            long milliSeconds =  Timestamp.valueOf(now).getTime();
+            System.out.println("MilliSeconds: "+milliSeconds);
+            System.out.println("date" + d.getTime() );
+            LocalDateTime inTime  = LocalDateTime.now().minusHours(1);
+            ticket.setInTime(inTime);
             ticket.setParkingSpot(parkingSpot);
             ticket.setVehicleRegNumber("ABCDEF");
             when(ticketDAO.getTicket(anyString())).thenReturn(ticket);
