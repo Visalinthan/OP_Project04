@@ -20,6 +20,8 @@ public class TicketDAO {
 
     public DataBaseConfig dataBaseConfig = new DataBaseConfig();
 
+
+    // Fonction pour sauvegarder un ticket dans la base de données
     public boolean saveTicket(Ticket ticket){
         Connection con = null;
         try {
@@ -44,6 +46,7 @@ public class TicketDAO {
         }
     }
 
+    // Fonction qui retourne un ticket avec le numéro de véhicule entré dans le parametre
     public Ticket getTicket(String vehicleRegNumber) {
         Connection con = null;
         Ticket ticket = null;
@@ -76,6 +79,7 @@ public class TicketDAO {
         }
     }
 
+    // Fonction pour mettre à jour un ticket
     public boolean updateTicket(Ticket ticket) {
         Connection con = null;
         try {
@@ -96,6 +100,7 @@ public class TicketDAO {
         return false;
     }
 
+    // Fonction pour vérifier si le vehicule a été déjà enregistrer dans la base de données
     public int checkCountByVehicleRegNumber(String vehicleRegNumber)  {
         int result = 0;
         Connection con = null;

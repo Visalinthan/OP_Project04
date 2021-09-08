@@ -44,7 +44,7 @@ public class ParkingServiceTest {
             LocalDateTime now = LocalDateTime.now();
             long milliSeconds =  Timestamp.valueOf(now).getTime();
             System.out.println("MilliSeconds: "+milliSeconds);
-            System.out.println("date" + d.getTime() );
+            System.out.println("date" + d.getTime());
             LocalDateTime inTime  = LocalDateTime.now().minusHours(1);
             ticket.setInTime(inTime);
             ticket.setParkingSpot(parkingSpot);

@@ -9,6 +9,7 @@ public class DataBaseConfig {
 
     private static final Logger logger = LogManager.getLogger("DataBaseConfig");
 
+    // Methode de connexion a la base de données
     public Connection getConnection() throws ClassNotFoundException, SQLException {
         logger.info("Create DB connection");
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -16,6 +17,7 @@ public class DataBaseConfig {
                 "jdbc:mysql://localhost:3306/prod","root","");
     }
 
+    // Methode de déconnexion à la base données
     public void closeConnection(Connection con){
         if(con!=null){
             try {
@@ -27,6 +29,7 @@ public class DataBaseConfig {
         }
     }
 
+    // Fermer les requete préparé
     public void closePreparedStatement(PreparedStatement ps) {
         if(ps!=null){
             try {
@@ -38,6 +41,7 @@ public class DataBaseConfig {
         }
     }
 
+    // Fermer les requetes des resultat
     public void closeResultSet(ResultSet rs) {
         if(rs!=null){
             try {

@@ -28,6 +28,7 @@ public class ParkingService {
         this.ticketDAO = ticketDAO;
     }
 
+    //Fonction executant le processus d'entrée d'un vehicule en vérifiant d'abord les places disponible et ensuite créer un ticket
     public void processIncomingVehicle() {
         try{
             ParkingSpot parkingSpot = getNextParkingNumberIfAvailable();
@@ -55,11 +56,13 @@ public class ParkingService {
         }
     }
 
+    // Fonction retournant le numéro du vehicule saisie
     private String getVehichleRegNumber() throws Exception {
         System.out.println("Please type the vehicle registration number and press enter key");
         return inputReaderUtil.readVehicleRegistrationNumber();
     }
 
+    // Fonction retournant le parking disponible
     public ParkingSpot getNextParkingNumberIfAvailable(){
         int parkingNumber=0;
         ParkingSpot parkingSpot = null;
@@ -79,6 +82,7 @@ public class ParkingService {
         return parkingSpot;
     }
 
+    // Fonction retournant le type de véhicule
     private ParkingType getVehichleType(){
         System.out.println("Please select vehicle type from menu");
         System.out.println("1 CAR");
@@ -98,6 +102,7 @@ public class ParkingService {
         }
     }
 
+    // Fonction executant le processus de sorti d'un vehicule en calculant le prix du ticket
     public void processExitingVehicle() {
         try{
             String vehicleRegNumber = getVehichleRegNumber();

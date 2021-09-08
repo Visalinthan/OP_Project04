@@ -8,6 +8,7 @@ import java.time.Duration;
 
 public class FareCalculatorService {
 
+    // Fonction qui permet de calculer le prix d'un ticket pour tout type de véhicule
     public void calculateFare(Ticket ticket){
         if( (ticket.getOutTime() == null) || (ticket.getOutTime().isBefore(ticket.getInTime())) ){
             throw new IllegalArgumentException("Out time provided is incorrect:"+ticket.getOutTime().toString());
@@ -48,6 +49,5 @@ public class FareCalculatorService {
         }else{
             ticket.setPrice(0);
         }
-
     }
 }
