@@ -27,6 +27,7 @@ import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +38,7 @@ public class ParkingDataBaseIT {
     private static TicketDAO ticketDAO;
     private static DataBasePrepareService dataBasePrepareService;
 
-   //@Mock
+   @Mock
     private static InputReaderUtil inputReaderUtil;
 
     @BeforeAll
@@ -51,13 +52,9 @@ public class ParkingDataBaseIT {
 
     @BeforeEach
     private void setUpPerTest() throws Exception {
-       // when(inputReaderUtil.readSelection()).thenReturn(1);
-        // when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("ABCDEF");
+        when(inputReaderUtil.readSelection()).thenReturn(1);
+        when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("ABCDEF");
         dataBasePrepareService.clearDataBaseEntries();
-        Ticket ticket = new Ticket();
-        ticket.setVehicleRegNumber("ABCDEF");
-        setField();
-        ticketDAO.saveTicket(ticket);
     }
 
     @AfterAll
@@ -65,29 +62,34 @@ public class ParkingDataBaseIT {
 
     }
 
-    public void setField() throws NoSuchFieldException, IllegalAccessException {
-        Field reader = InputReaderUtil.class.getDeclaredField("scan");
-        reader.setAccessible(true);
-        InputReaderUtil input = new InputReaderUtil();
-        Scanner scan = new Scanner("1");
-        reader.set(input,scan);
-    }
 
     @Test
     public void testParkingACar(){
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
-        parkingService.processIncomingVehicle();
-       // parkingService.processIncomingVehicle();
+        int currentAvailableSlot = parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR);
+       parkingService.processIncomingVehicle();
 
         //TODO: check that a ticket is actualy saved in DB and Parking table is updated with availability
         Ticket ticket =  ticketDAO.getTicket("ABCDEF");
 
-        assertEquals(1,ticket.getId());
-        assertEquals(false,ticket.getParkingSpot().isAvailable());
+        assertNotNull(ticket);
+        assertNotEquals(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR), currentAvailableSlot);
+        assertEquals(1, ticket.getId(), "Ticket Id Not Valid");
+    }
+
+    @Test
+    public void testParkingABike() {
+
+        ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+        parkingService.processIncomingVehicle();
+        Ticket ticket = ticketDAO.getTicket("ABCDEF");
+        assertNotNull(ticket);
+        assertEquals(1, ticket.getId(), "Ticket Id Not Valid");
+
 
     }
 
-   /* @Test
+    @Test
     public void testParkingLotExit(){
         testParkingACar();
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
@@ -109,23 +111,6 @@ public class ParkingDataBaseIT {
         assertNotNull(ticket.getOutTime());
     }
 
-    @Test
-    public void recurringUser(){
-        ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
-        parkingService.processIncomingVehicle();
 
-        Ticket ticket = new Ticket();
-        ticket.setVehicleRegNumber("ABCDEF");
-        Ticket ticketdb = ticketDAO.getTicket("ABCDEF");
 
-        if(ticket == ticketdb){
-            double price = ticket.getPrice()*0.05;
-            ticket.setPrice(price);
-            System.out.println("yes");
-        }
-
-        System.out.println("no");
-        assertEquals(ticket.getPrice(),ticketdb.getPrice());
-    }
-*/
 }
